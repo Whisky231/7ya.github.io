@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Оплата заказа — СемьЯ</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.page {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ---- HEADER ---- */
+.merchant-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.merchant-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border-radius: 50px;
+  padding: 8px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.merchant-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: #c8251d;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.merchant-logo-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ---- CARD ---- */
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* ---- ORDER INFO ---- */
+.order-info {
+  background: #1a1a1a;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+.order-amount {
+  text-align: right;
+}
+
+.amount-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.amount-currency {
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+}
+
+/* ---- TABS ---- */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tab {
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #999;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.tab:hover { color: #555; background: #fafafa; }
+
+.tab.active {
+  color: #c8251d;
+  border-bottom-color: #c8251d;
+}
+
+.tab-icon {
+  width: 22px;
+  height: 14px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.tab-mir .tab-icon { background: #00a550; color: white; letter-spacing: 0.3px; }
+
+/* ---- PANELS ---- */
+.panel { display: none; padding: 24px; }
+.panel.active { display: block; }
+
+/* ---- FORM ---- */
+.field-group { margin-bottom: 16px; }
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.field-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fafafa;
+}
+
+.field-input:focus {
+  border-color: #c8251d;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(200,37,29,0.08);
+}
+
+.field-input.error {
+  border-color: #e74c3c;
+  background: #fff8f8;
+}
+
+.field-input::placeholder { color: #c0c0c0; }
+
+.card-number-wrap {
+  position: relative;
+}
+
+.card-brand {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 22px;
+  background: #00a550;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s;
+}
+
+.amount-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.amount-input-wrap .field-input {
+  padding-right: 36px;
+}
+
+.amount-input-suffix {
+  position: absolute;
+  right: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #999;
+  pointer-events: none;
+}
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.field-hint {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 5px;
+}
+
+.error-msg {
+  font-size: 11px;
+  color: #e74c3c;
+  margin-top: 5px;
+  display: none;
+}
+
+.error-msg.show { display: block; }
+
+/* ---- CARD VISUAL ---- */
+.card-visual {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  height: 110px;
+}
+
+.card-visual::before {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.card-visual::after {
+  content: '';
+  position: absolute;
+  right: 30px;
+  bottom: -50px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 50%;
+}
+
+.card-chip {
+  width: 30px;
+  height: 22px;
+  background: linear-gradient(135deg, #f0c040, #c8960c);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.card-num-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-num-display {
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  letter-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+  flex: 1;
+}
+
+.card-num-display span { opacity: 0.4; }
+
+.card-exp-online {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.card-exp-label { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+.card-exp-val { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 500; }
+
+.card-mir-badge {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  background: #00a550;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.3px;
+}
+
+/* ---- PAY BUTTON ---- */
+.pay-btn {
+  width: 100%;
+  height: 52px;
+  background: #c8251d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pay-btn:hover { background: #a81e17; box-shadow: 0 4px 16px rgba(200,37,29,0.35); }
+.pay-btn:active { transform: scale(0.98); }
+
+.pay-btn.loading {
+  background: #a81e17;
+  pointer-events: none;
+}
+
+/* ---- SPINNER ---- */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- SECURE FOOTER ---- */
+.secure-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid #f5f5f5;
+  font-size: 11px;
+  color: #bbb;
+}
+
+.secure-icon { font-size: 13px; }
+
+/* ======= SUCCESS SCREEN ======= */
+.success-screen {
+  display: none;
+  padding: 48px 24px 40px;
+  text-align: center;
+}
+
+.success-screen.show { display: block; }
+
+.checkmark-wrap {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.checkmark-circle {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  stroke: #22c55e;
+  fill: none;
+  stroke-width: 3;
+  stroke-dasharray: 276;
+  stroke-dashoffset: 276;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.checkmark-check {
+  stroke: #22c55e;
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+}
+
+.checkmark-bg {
+  fill: #f0fdf4;
+}
+
+@keyframes drawCircle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success-screen.show .checkmark-circle {
+  animation: drawCircle 0.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.success-screen.show .checkmark-check {
+  animation: drawCheck 0.4s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+
+.success-screen.show .success-content {
+  animation: fadeUp 0.4s ease 0.7s both;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.success-sub {
+  font-size: 14px;
+  color: #777;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.success-detail {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.detail-row:not(:last-child) { border-bottom: 1px solid #ebebeb; }
+.detail-key { color: #999; }
+.detail-val { font-weight: 600; color: #1a1a1a; }
+.detail-val.green { color: #22c55e; }
+
+.receipt-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.receipt-btn {
+  height: 44px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.receipt-btn:hover { border-color: #1d3a8a; color: #1d3a8a; background: #f8f9ff; }
+
+.back-btn {
+  width: 100%;
+  height: 48px;
+  background: #f5f5f5;
+  color: #555;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.back-btn:hover { background: #ebebeb; }
+
+@media print {
+  body { background: white; padding: 0; }
+  .page { max-width: 100%; }
+  .merchant-header { margin-bottom: 12px; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  .back-btn, .receipt-actions, .secure-footer { display: none !important; }
+  .success-screen { padding: 24px; }
+  .checkmark-wrap { width: 48px; height: 48px; margin-bottom: 12px; }
+  .checkmark-wrap svg { width: 48px; height: 48px; }
+  .success-title { font-size: 18px; }
+  .success-sub { font-size: 12px; margin-bottom: 16px; }
+  .success-detail { padding: 12px 16px; }
+  .detail-row { font-size: 11px; padding: 4px 0; }
+  @page { margin: 1cm; }
+}
+
+/* ---- MAIN CONTENT toggle ---- */
+.main-content { display: block; }
+.main-content.hide { display: none; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Merchant header -->
+  <div class="merchant-header">
+    <div class="merchant-logo">
+      <div class="merchant-logo-icon">🍕</div>
+      <div class="merchant-logo-name">СемьЯ</div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- Main checkout content -->
+    <div class="main-content" id="mainContent">
+
+      <!-- Order summary bar -->
+      <div class="order-info">
+        <div>
+          <div class="order-label">Заказ</div>
+          <div class="order-desc" id="orderDesc">Пицца Морская × 1</div>
+        </div>
+        <div class="order-amount">
+          <div class="order-label">К оплате</div>
+          <div class="amount-value" id="orderAmount">0 <span class="amount-currency">₽</span></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" style="grid-template-columns:1fr">
+        <button class="tab tab-mir active" onclick="switchTab('mir')">
+          <div class="tab-icon">МИР</div>
+          Карта
+        </button>
+      </div>
+
+      <!-- CARD PANEL -->
+      <div class="panel active" id="panelMir">
+
+        <!-- Live card visual -->
+        <div class="card-visual">
+          <div class="card-mir-badge">МИР</div>
+          <div class="card-chip"></div>
+          <div class="card-num-row">
+            <div class="card-num-display" id="cardDisplay">
+              <span>••••</span> <span>••••</span> <span>••••</span> <span>••••</span>
+            </div>
+            <div class="card-exp-online">
+              <div class="card-exp-label">Срок</div>
+              <div class="card-exp-val" id="expDisplay">ММ/ГГ</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card number -->
+        <div class="field-group">
+          <label class="field-label">Номер карты</label>
+          <div class="card-number-wrap">
+            <input type="text" class="field-input" id="cardNumber"
+              placeholder="0000 0000 0000 0000"
+              maxlength="19"
+              inputmode="numeric"
+              autocomplete="cc-number"
+              oninput="onCardNum(this)">
+            <div class="card-brand" id="cardBrand">МИР</div>
+          </div>
+          <div class="error-msg" id="errCard">Введите корректный номер карты</div>
+        </div>
+
+        <!-- Expiry + CVV -->
+        <div class="row-2">
+          <div class="field-group">
+            <label class="field-label">Срок действия</label>
+            <input type="text" class="field-input" id="cardExp"
+              placeholder="ММ/ГГ"
+              maxlength="5"
+              inputmode="numeric"
+              autocomplete="cc-exp"
+              oninput="onExp(this)">
+            <div class="error-msg" id="errExp">Неверный срок</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">CVV / CVC</label>
+            <input type="password" class="field-input" id="cardCvv"
+              placeholder="•••"
+              maxlength="3"
+              inputmode="numeric"
+              autocomplete="cc-csc"
+              oninput="onCvv(this)">
+            <div class="error-msg" id="errCvv">3 цифры на обороте</div>
+          </div>
+        </div>
+
+        <!-- Order amount -->
+        <div class="field-group">
+          <label class="field-label">Сумма заказа</label>
+          <div class="amount-input-wrap">
+            <input type="text" class="field-input" id="orderAmountInput"
+              placeholder="0"
+              inputmode="numeric"
+              oninput="onAmountInput(this)">
+            <span class="amount-input-suffix">₽</span>
+          </div>
+        </div>
+
+        <button class="pay-btn" id="mirPayBtn" onclick="doMirPay()">
+          <span id="mirBtnText">Оплатить 0 ₽</span>
+          <div class="spinner" id="mirSpinner"></div>
+        </button>
+
+      </div>
+
+      <!-- Secure footer -->
+      <div class="secure-footer">
+        <span class="secure-icon">🔒</span>
+        Защищённое соединение · 3D-Secure · PCI DSS
+      </div>
+
+    </div><!-- /main-content -->
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="checkmark-wrap">
+        <svg viewBox="0 0 88 88" width="88" height="88">
+          <circle class="checkmark-bg" cx="44" cy="44" r="42"/>
+          <circle class="checkmark-circle" cx="44" cy="44" r="41"/>
+          <polyline class="checkmark-check" points="26,44 38,56 62,32"/>
+        </svg>
+      </div>
+      <div class="success-content">
+        <div class="success-title">Оплата прошла успешно!</div>
+        <div class="success-sub">Ваш заказ принят и уже готовится.<br>Курьер приедет через 30–45 минут.</div>
+        <div class="success-detail">
+          <div class="detail-row">
+            <span class="detail-key">Статус</span>
+            <span class="detail-val green">✓ Оплачено</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Сумма</span>
+            <span class="detail-val" id="successAmount">0 ₽</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Номер заказа</span>
+            <span class="detail-val" id="successOrder">#SF-00000</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Способ оплаты</span>
+            <span class="detail-val" id="successMethod">Карта МИР</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">Время</span>
+            <span class="detail-val" id="successTime">—</span>
+          </div>
+        </div>
+        <div class="receipt-actions">
+          <button class="receipt-btn" onclick="downloadReceipt('pdf')">📄 Скачать PDF</button>
+          <button class="receipt-btn" onclick="downloadReceipt('docx')">📝 Скачать DOCX</button>
+        </div>
+        <button class="back-btn" onclick="resetAll()">← Вернуться назад</button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+</div><!-- /page -->
+
+<script>
+// ---- State ----
+let activeTab = 'mir';
+let payMethod = 'mir';
+
+// ⬇ Сумма подтягивается из поля ввода на форме
+let manualAmount = '';
+
+const orderData = {
+  number: '#SF-' + (10000 + Math.floor(Math.random() * 90000)),
+  desc: 'Пицца Морская × 1',
+  amount: '— ₽',
+  amountRaw: 0
+};
+
+document.getElementById('orderDesc').textContent = orderData.number;
+document.getElementById('orderAmount').innerHTML = orderData.amount.replace('₽', '<span class="amount-currency">₽</span>');
+document.getElementById('mirBtnText').textContent = 'Оплатить ' + orderData.amount;
+document.getElementById('orderAmountInput').value = manualAmount;
+
+function onAmountInput(input) {
+  input.value = input.value.replace(/\D/g, '').slice(0, 10);
+  manualAmount = input.value;
+  if (!manualAmount) {
+    orderData.amount = '— ₽';
+    orderData.amountRaw = 0;
+    document.getElementById('orderAmount').innerHTML = '— <span class="amount-currency">₽</span>';
+    document.getElementById('mirBtnText').textContent = 'Оплатить — ₽';
+  } else {
+    orderData.amount = manualAmount + ' ₽';
+    orderData.amountRaw = parseInt(manualAmount);
+    const display = manualAmount + ' <span class="amount-currency">₽</span>';
+    document.getElementById('orderAmount').innerHTML = display;
+    document.getElementById('mirBtnText').textContent = 'Оплатить ' + orderData.amount;
+  }
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  payMethod = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab-' + tab).classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panelMir').classList.add('active');
+}
+
+// ---- Card number formatting ----
+function onCardNum(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 16);
+  let parts = [];
+  for (let i = 0; i < v.length; i += 4) parts.push(v.slice(i, i + 4));
+  input.value = parts.join(' ');
+  // Update visual
+  let d = v.padEnd(16, '•');
+  document.getElementById('cardDisplay').innerHTML =
+    `${d.slice(0,4)} ${d.slice(4,8)} ${d.slice(8,12)} ${d.slice(12,16)}`;
+  clearErr('cardNumber', 'errCard');
+}
+
+function onExp(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+  input.value = v;
+  document.getElementById('expDisplay').textContent = v || 'ММ/ГГ';
+  clearErr('cardExp', 'errExp');
+}
+
+function onCvv(input) {
+  input.value = input.value.replace(/\D/g, '').slice(0, 3);
+  clearErr('cardCvv', 'errCvv');
+}
+
+function clearErr(inputId, errId) {
+  document.getElementById(inputId).classList.remove('error');
+  document.getElementById(errId).classList.remove('show');
+}
+
+function showErr(inputId, errId) {
+  document.getElementById(inputId).classList.add('error');
+  document.getElementById(errId).classList.add('show');
+  return false;
+}
+
+// ---- MIR Pay ----
+function doMirPay() {
+  let ok = true;
+  const num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+  const exp = document.getElementById('cardExp').value;
+  const cvv = document.getElementById('cardCvv').value;
+
+  if (num.length < 16) ok = showErr('cardNumber', 'errCard');
+  if (exp.length < 5) ok = showErr('cardExp', 'errExp');
+  if (cvv.length < 3) ok = showErr('cardCvv', 'errCvv');
+
+  if (!ok) return;
+
+  const btn = document.getElementById('mirPayBtn');
+  btn.classList.add('loading');
+  document.getElementById('mirBtnText').textContent = 'Обработка...';
+  document.getElementById('mirSpinner').style.display = 'block';
+
+  setTimeout(() => {
+    showSuccess('Карта МИР ···· ' + num.slice(-4));
+  }, 1800);
+}
+
+// ---- Success ----
+function showSuccess(method) {
+  document.getElementById('mainContent').classList.add('hide');
+
+  const orderNum = orderData.number;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  receiptData = { orderNum, amount: orderData.amount, method, time: timeStr, date: dateStr };
+
+  document.getElementById('successAmount').textContent = orderData.amount;
+  document.getElementById('successOrder').textContent = orderNum;
+  document.getElementById('successMethod').textContent = method;
+  document.getElementById('successTime').textContent = timeStr;
+
+  const screen = document.getElementById('successScreen');
+  screen.classList.add('show');
+}
+
+function receiptHtml() {
+  const d = receiptData;
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Чек ' + d.orderNum + '</title>' +
+    '<style>' +
+    'body{font-family:Arial,sans-serif;max-width:400px;margin:40px auto;padding:20px;color:#1a1a1a}' +
+    'h1{font-size:20px;text-align:center;margin-bottom:4px}' +
+    '.sub{text-align:center;color:#999;font-size:13px;margin-bottom:20px}' +
+    'table{width:100%;border-collapse:collapse;font-size:13px}' +
+    'td{padding:8px 0;border-bottom:1px solid #eee}' +
+    'td:last-child{text-align:right;font-weight:600}' +
+    'td:first-child{color:#999}' +
+    '.total td{font-size:16px;font-weight:700;border:none;padding-top:12px}' +
+    '.total td:last-child{color:#c8251d}' +
+    '.footer{text-align:center;color:#bbb;font-size:11px;margin-top:24px}' +
+    '</style></head><body>' +
+    '<h1>СемьЯ</h1>' +
+    '<div class="sub">Чек об оплате</div>' +
+    '<table>' +
+    '<tr><td>Номер заказа</td><td>' + d.orderNum + '</td></tr>' +
+    '<tr><td>Дата</td><td>' + d.date + '</td></tr>' +
+    '<tr><td>Время</td><td>' + d.time + '</td></tr>' +
+    '<tr><td>Способ оплаты</td><td>' + d.method + '</td></tr>' +
+    '<tr><td>Статус</td><td style="color:#22c55e">Оплачено</td></tr>' +
+    '<tr class="total"><td>Сумма</td><td>' + d.amount + '</td></tr>' +
+    '</table>' +
+    '<div class="footer">Спасибо за заказ!<br>Срок доставки 30–45 минут</div>' +
+    '</body></html>';
+}
+
+function downloadReceipt(format) {
+  if (!receiptData) return;
+  if (format === 'pdf') {
+    const win = window.open('', '_blank');
+    win.document.write(receiptHtml());
+    win.document.close();
+    win.focus();
+    win.print();
+  } else if (format === 'docx') {
+    const blob = new Blob([receiptHtml()], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'check-' + receiptData.orderNum.replace('#', '') + '.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}
+
+function resetAll() {
+  document.getElementById('mainContent').classList.remove('hide');
+  document.getElementById('successScreen').classList.remove('show');
+
+  // Reset mir
+  ['cardNumber','cardExp','cardCvv'].forEach(id => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).classList.remove('error');
+  });
+  ['errCard','errExp','errCvv'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('cardDisplay').innerHTML = '<span>••••</span> <span>••••</span> <span>••••</span> <span>••••</span>';
+  document.getElementById('expDisplay').textContent = 'ММ/ГГ';
+
+  const mirBtn = document.getElementById('mirPayBtn');
+  mirBtn.classList.remove('loading');
+  document.getElementById('mirBtnText').textContent = 'Оплатить ' + orderData.amount;
+  document.getElementById('mirSpinner').style.display = 'none';
+
+  receiptData = null;
+
+  // Reset order amount input
+  document.getElementById('orderAmountInput').value = manualAmount;
+}
+</script>
+</body>
+</html>
